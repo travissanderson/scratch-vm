@@ -225,7 +225,9 @@ class Blocks {
      * @return {?string} ID of procedure definition.
      */
     getProcedureDefinition (name) {
-        const blockID = this._cache.procedureDefinitions[name];
+        // prefix name to avoid collisions with javascript Object keys, e.g. hasOwnProperty
+        const safeName = `proc_${name}`;
+        const blockID = this._cache.procedureDefinitions[safeName];
         if (typeof blockID !== 'undefined') {
             return blockID;
         }
@@ -236,13 +238,13 @@ class Blocks {
             if (block.opcode === 'procedures_definition') {
                 const internal = this._getCustomBlockInternal(block);
                 if (internal && internal.mutation.proccode === name) {
-                    this._cache.procedureDefinitions[name] = id; // The outer define block id
+                    this._cache.procedureDefinitions[safeName] = id; // The outer define block id
                     return id;
                 }
             }
         }
 
-        this._cache.procedureDefinitions[name] = null;
+        this._cache.procedureDefinitions[safeName] = null;
         return null;
     }
 
@@ -261,7 +263,9 @@ class Blocks {
      * @return {?Array.<string>} List of param names for a procedure.
      */
     getProcedureParamNamesIdsAndDefaults (name) {
-        const cachedNames = this._cache.procedureParamNames[name];
+        // prefix name to avoid collisions with javascript Object keys, e.g. hasOwnProperty
+        const safeName = `proc_${name}`;
+        const cachedNames = this._cache.procedureParamNames[safeName];
         if (typeof cachedNames !== 'undefined') {
             return cachedNames;
         }
@@ -275,12 +279,12 @@ class Blocks {
                 const ids = JSON.parse(block.mutation.argumentids);
                 const defaults = JSON.parse(block.mutation.argumentdefaults);
 
-                this._cache.procedureParamNames[name] = [names, ids, defaults];
-                return this._cache.procedureParamNames[name];
+                this._cache.procedureParamNames[safeName] = [names, ids, defaults];
+                return this._cache.procedureParamNames[safeName];
             }
         }
 
-        this._cache.procedureParamNames[name] = null;
+        this._cache.procedureParamNames[safeName] = null;
         return null;
     }
 

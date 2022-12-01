@@ -240,6 +240,41 @@ test('getOpcode', t => {
     t.end();
 });
 
+test('getProcedureDefinition with reserved name', t => {
+    const b = new Blocks(new Runtime());
+    b.createBlock({
+        id: 'defId',
+        inputs: {
+            custom_block: {
+                block: 'protoId',
+                name: 'custom_block'
+            }
+        },
+        opcode: 'procedures_definition',
+        next: null,
+        fields: {},
+        topLevel: true
+    });
+    b.createBlock({
+        id: 'protoId',
+        mutation: {
+            proccode: 'hasOwnProperty',
+            tagName: 'mutation'
+        },
+        opcode: 'procedures_definition',
+        parent: 'defId',
+        next: null,
+        fields: {},
+        inputs: {},
+        topLevel: false
+    });
+    const block = b.getBlock('defId');
+    const id = b.getProcedureDefinition('hasOwnProperty');
+    t.equal(id, block.id);
+    t.type(block, 'object');
+    t.end();
+});
+
 test('mutationToXML', t => {
     const b = new Blocks(new Runtime());
     const testStringRaw = '"arbitrary" & \'complicated\' test string';
